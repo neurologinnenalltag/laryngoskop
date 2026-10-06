@@ -202,7 +202,9 @@ button.warn{border-color:var(--bad);color:var(--bad)}
     $('release').hidden = !pin; $('release').disabled = isLive && !ctl.aufgeloest;
     $('release').textContent = isLive ? (ctl.aufgeloest ? 'Erneut freigeben' : 'Ist freigegeben') : 'Frage freigeben';
     const badge = isLive ? `<span class="badge ${ctl.aufgeloest ? 'rev' : 'on'}">${ctl.aufgeloest ? 'aufgelöst' : 'live auf den Handys'}</span>` : (pin ? '<span class="badge">nicht freigegeben</span>' : '');
-    const b = !N ? `<div class="empty">Noch keine Antworten in Runde „${esc(runde)}“.</div>`
+    const opts = q.t==='mc' ? `<div class="bars">${q.opts.map((o,k)=>`<div class="bar" style="grid-template-columns:44px 1fr"><span class="l o${L[k]}">${L[k]}</span><div class="track"><div class="lbl">${esc(o)}</div></div></div>`).join('')}</div>` : '';
+    const b = !rev ? `${opts}<div class="empty"><div class="big">${N}</div>${N===1?'Antwort':'Antworten'} eingegangen · Verteilung erscheint mit der Auflösung</div>`
+      : !N ? `<div class="empty">Keine Antworten in Runde „${esc(runde)}“.</div>`
       : q.t==='mc' ? bodyMC(q,rows,N,rev) : q.t==='sel' ? bodySel(q,rows,N,rev) : bodyOrder(q,rows,N,rev);
     const summary = N && rev ? `<div class="sub">${pct(right(q.n),N)} % haben die Frage komplett richtig beantwortet.</div>` : '';
     $('main').innerHTML = `<section class="card"><div class="meta"><span class="num">Frage ${q.n} / ${QS.length}</span><span class="sec">${esc(q.sec||'')}</span>${badge}<span class="n">${N} Antworten</span></div><h1>${esc(q.q)}</h1>${figs(q)}${b}${summary}</section>`;

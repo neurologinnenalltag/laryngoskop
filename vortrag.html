@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EKG und Herzrhythmusstörungen · Vortrag</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Folien sind 1280×720 und werden passend skaliert. Bewusst nur hell – für den Beamer. */
+:root{
+  --red:#a10030; --red-d:#7d0026; --orange:#ec8c06; --green:#17794a; --green-bg:#e1f3e9; --bad:#b8322a;
+  --fg:#1c1416; --muted:#63585a; --line:#e0d9d5; --paper:#fffdfb; --beige:#f6f2ee; --white:#fff;
+  --oA:#2757c9; --oB:#c2570c; --oC:#7a3fb5; --oD:#0d7f8a;
+  --display:"Bricolage Grotesque","Figtree",system-ui,sans-serif; --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#111;color:var(--fg);font-family:var(--body);overflow:hidden}
+button{font:600 15px var(--body);cursor:pointer;border-radius:10px;border:1.5px solid #ccc;background:#fff;color:var(--fg);padding:8px 12px}
+button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+
+/* ---------- Bühne ---------- */
+.stage{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+.frame{position:relative;overflow:hidden;background:#000}
+.slide{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;background:var(--white);color:var(--fg);overflow:hidden;font-size:22px;line-height:1.38}
+
+/* ---------- Folienbausteine ---------- */
+.s-head{position:absolute;left:56px;right:56px;top:40px;display:flex;align-items:center;gap:16px;min-height:52px}
+.s-head h1{margin:0;font:700 42px/1.12 var(--display);letter-spacing:-.01em;text-wrap:balance}
+.s-q .s-head h1{font-size:34px}
+.badge{flex:none;font:700 19px var(--body);color:#fff;border-radius:999px;padding:8px 20px;background:var(--orange)}
+.badge.sol{background:var(--green)}
+.s-body{position:absolute;left:56px;right:56px;top:118px;bottom:58px;display:flex;flex-direction:column;gap:20px;--fs:28px;font-size:var(--fs);line-height:1.35}
+.s-foot{position:absolute;left:56px;right:56px;bottom:20px;display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.row{display:flex;gap:28px;min-height:0;flex:1}
+.row>*{min-width:0}
+.col{flex:1;display:flex;flex-direction:column;gap:14px;min-height:0}
+.fig{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);display:flex;align-items:center;justify-content:center}
+.fig svg{display:block;width:100%;height:100%;max-height:100%}
+.fig.strip{flex:none;height:200px}
+.fig.ekg12{flex:1 1 auto;min-height:0}
+.fig.side.ekg12{flex:0 0 56%;align-self:stretch}
+.fig.side{flex:0 0 42%;align-self:flex-start;max-height:100%}
+.fig.side svg{height:auto}
+ul.b{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+ul.b li b{font-weight:700}
+ol.n{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;counter-reset:n}
+ol.n li{display:flex;gap:16px;align-items:baseline;counter-increment:n}
+ol.n li::before{content:counter(n);flex:none;width:calc(var(--fs) * 1.45);height:calc(var(--fs) * 1.45);border-radius:50%;background:var(--red);color:#fff;font:700 calc(var(--fs) * .72) var(--display);display:grid;place-items:center;transform:translateY(calc(var(--fs) * .25))}
+table.t{border-collapse:collapse;width:100%;font-size:calc(var(--fs) * .78)}
+table.t th{background:var(--red);color:#fff;text-align:left;padding:8px 10px;font-weight:700}
+table.t td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
+.cols{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:20px}
+.cols section{background:var(--beige);border-radius:14px;padding:18px 20px;font-size:calc(var(--fs) * .86)}
+.cols h3{margin:0 0 8px;font:700 calc(var(--fs) * .92) var(--display);color:var(--red)}
+.cols ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+.aside{border-left:6px solid var(--orange);background:#fff6e8;border-radius:0 12px 12px 0;padding:12px 18px;font-size:calc(var(--fs) * .85)}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:16px 26px;flex:1;min-height:0;align-content:start}
+.grid4 figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.grid4 .fig{height:170px}
+.grid4 figcaption{font-size:calc(var(--fs) * .72);line-height:1.3}
+.box{background:var(--beige);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+.cap{font-size:calc(var(--fs) * .82);color:var(--fg)}
+.satz{background:var(--green-bg);border-left:6px solid var(--green);border-radius:0 12px 12px 0;padding:10px 16px;font-weight:600}
+
+/* Titel / Abschnitt */
+.s-red{background:var(--red);color:#fff}
+.s-red .trace{position:absolute;left:0;right:0;bottom:40px;height:150px;opacity:.85}
+.s-red .trace svg{width:100%;height:100%}
+.s-title h1{position:absolute;left:72px;top:190px;width:640px;margin:0;font:700 56px/1.1 var(--display);letter-spacing:-.015em}
+.s-title .sub{position:absolute;left:72px;top:330px;width:620px;font-size:22px;opacity:.95}
+.s-title .link{position:absolute;left:72px;top:418px;font-size:16px}
+.s-title .link code{display:block;font:500 17px "JetBrains Mono",ui-monospace,monospace;margin-top:4px}
+.qrcard{position:absolute;right:72px;top:118px;width:300px;background:#fff;color:var(--fg);border-radius:16px;padding:20px;text-align:center;font-weight:700;font-size:17px}
+.qrcard .qr svg{display:block;width:100%;height:auto}
+.s-section h1{position:absolute;left:72px;top:250px;margin:0;font:700 72px/1.05 var(--display)}
+.s-section .sub{position:absolute;left:72px;top:350px;right:72px;font-size:26px}
+
+/* Fragen */
+.s-q{background:var(--beige)}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opts.two{display:grid;grid-template-columns:1fr 1fr}
+.opt{position:relative;display:flex;align-items:center;gap:18px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 18px;min-height:calc(var(--fs) * 2.6);overflow:hidden}
+.opt .l{position:relative;flex:none;width:calc(var(--fs) * 1.6);height:calc(var(--fs) * 1.6);border-radius:50%;display:grid;place-items:center;color:#fff;font:700 calc(var(--fs) * .8) var(--display);z-index:1}
+.opt .x{position:relative;z-index:1;font-weight:500}
+.opt .p{position:relative;z-index:1;margin-left:auto;font:700 calc(var(--fs) * 1.1) var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.opt .p small{font:500 14px var(--body);color:var(--muted);margin-left:6px}
+.opt .fill{position:absolute;inset:0 auto 0 0;background:rgba(99,88,90,.14);transition:width .5s}
+.opt.ok{border-color:var(--green);border-width:2.5px}
+.opt.ok .fill{background:rgba(23,121,74,.22)}
+.opt.ok .x::after{content:"  ✓";color:var(--green);font-weight:700}
+.opt.dim{opacity:.6}
+.oA .l{background:var(--oA)}.oB .l{background:var(--oB)}.oC .l{background:var(--oC)}.oD .l{background:var(--oD)}
+.why{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;font-size:calc(var(--fs) * .82)}
+.lines{display:flex;flex-direction:column;gap:10px}
+.line{display:grid;grid-template-columns:minmax(52px,auto) 1fr;gap:14px;align-items:end}
+.line b{font-weight:700}
+.line{grid-template-columns:minmax(64px,auto) 1fr}
+.line span{border-bottom:2px dashed #bdb3ae;min-height:calc(var(--fs) * 1.3)}
+.line.sol{grid-template-columns:minmax(52px,auto) 1fr auto}
+.line.sol span{border:0;color:var(--green);font-weight:700}
+.line.sol i{font-style:normal;font:700 calc(var(--fs) * .8) var(--display);color:var(--muted);font-variant-numeric:tabular-nums}
+.pool{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;font-size:calc(var(--fs) * .82)}
+.pool h4{margin:0 0 4px;color:var(--red);font-size:calc(var(--fs) * .7)}
+ol.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+ol.items li{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 16px;font-weight:500;display:flex;gap:12px;align-items:center}
+ol.items li b{color:var(--green)}
+ol.items li i{margin-left:auto;font:700 calc(var(--fs) * .8) var(--display);font-style:normal;color:var(--muted)}
+.live{position:absolute;right:56px;top:48px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 16px;font-weight:700;font-size:18px}
+.live .dot{width:10px;height:10px;border-radius:50%;background:var(--green)}
+.live.off .dot{background:#bbb}
+.figs{display:flex;flex-direction:column;gap:10px}
+.figs .fig{flex:1;min-height:0}
+.figs{min-height:0;align-self:stretch}
+
+/* ---------- Werkzeugleiste ---------- */
+.bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:rgba(20,16,17,.92);color:#fff;border-radius:14px;padding:8px 10px;transition:opacity .25s;z-index:5;font-size:14px}
+.bar.hide{opacity:0;pointer-events:none}
+.bar button{background:#2c2527;color:#fff;border-color:#4a3f42;padding:7px 11px;font-size:14px}
+.bar .pos{min-width:76px;text-align:center;font-variant-numeric:tabular-nums}
+.bar .mod-on{background:var(--green);border-color:var(--green)}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#1c1416;color:#fff;padding:10px 16px;border-radius:10px;font-size:15px;z-index:6;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+
+/* ---------- Referentenansicht ---------- */
+body.ref{background:#1b1718;color:#f1ebea;overflow:auto}
+.refwrap{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);grid-template-rows:auto 1fr;gap:16px;padding:16px;height:100vh}
+.refwrap .cur,.refwrap .nxt{position:relative;background:#000;border-radius:8px;overflow:hidden}
+.refwrap .cur{aspect-ratio:16/9}
+.refwrap .nxt{aspect-ratio:16/9}
+.refside{display:flex;flex-direction:column;gap:12px;min-height:0}
+.refside .lbl{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#b3a8a8}
+.clock{display:flex;gap:18px;align-items:baseline;font-variant-numeric:tabular-nums}
+.clock b{font:700 40px var(--display)}
+.clock span{color:#b3a8a8}
+.notes{grid-column:1/-1;background:#262022;border-radius:10px;padding:16px 20px;font-size:21px;line-height:1.5;overflow:auto;min-height:120px}
+.notes .q{color:#ffbe6b;font-weight:600}
+.refbtns{display:flex;gap:8px;flex-wrap:wrap}
+.refbtns button{background:#2c2527;color:#fff;border-color:#4a3f42}
+.refbtns .mod-on{background:var(--green);border-color:var(--green)}
+.stat{background:#262022;border-radius:10px;padding:10px 14px;font-size:15px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div id="app"></div>
+
+<script src="ekg.js?v=202610061413"></script>
+<script src="qrcode.js"></script>
+<script>
+(function(){
+  'use strict';
+  const SB_URL = 'https://jzsxzdjssxtgzylnntiq.supabase.co', SB_KEY = 'sb_publishable_vsqhwmlF5-Iby8n0oyyM9w_Z_yq9Wly';
+  const {DECK, figSVG, strip} = window.EKG;
+  const params = new URLSearchParams(location.search);
+  const RUNDE = (String(params.get('runde') || 'vortrag').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40)) || 'vortrag';
+  const REF = params.has('referent');
+  const TITLE = (DECK.find(x => x.kind === 'title') || {}).title || 'Vortrag';
+  const L = ['A','B','C','D','E','F'];
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const PAL = {fg:'#1c1416',muted:'#63585a',paper:'#fffdfb',grid:'#f6d3d8',gridBold:'#eaa3ad',trace:'#1c1416',accent:'#a10030',surface:'#ffffff',wall:'#efe6df',mark:'#ec8c06',markFg:'#1c1416'};
+  const TRACE = {fg:'#fff',muted:'#fff',paper:'transparent',grid:'transparent',gridBold:'transparent',trace:'rgba(255,255,255,.75)',accent:'#fff',surface:'transparent'};
+  const quizURL = new URL('./?runde=' + encodeURIComponent(RUNDE), location.href).href;
+
+  /* ---------- Schritte: Folie = 1 Schritt, Frage = Frage + Lösung ---------- */
+  const STEPS = [];
+  DECK.forEach(x => { if (x.t === 'slide') STEPS.push({ s: x }); else { STEPS.push({ q: x, sol: false }); STEPS.push({ q: x, sol: true }); } });
+  let pos = 0;
+  { const h = parseInt(location.hash.slice(1), 10); let saved = null; try { saved = +localStorage.getItem('lk-vortrag-pos:' + RUNDE); } catch (e) {}
+    pos = h > 0 ? h - 1 : (saved >= 0 ? saved : 0); pos = Math.max(0, Math.min(STEPS.length - 1, pos || 0)); }
+
+  /* ---------- Datenbank ---------- */
+  let pin = ''; try { pin = localStorage.getItem('lk-pin') || ''; } catch (e) {}
+  const H = { apikey: SB_KEY, 'Content-Type': 'application/json' };
+  async function rpc(fn, body){ const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, { method:'POST', headers:H, body: JSON.stringify(body) }); const t = await r.text(); if (!r.ok) throw new Error(t || r.status); return t ? JSON.parse(t) : null; }
+  let data = {}, ctl = null, online = false;
+  async function load(){
+    try {
+      const rows = await rpc('ergebnis', { p_runde: RUNDE }), d = {};
+      rows.forEach(x => (d[x.frage] = d[x.frage] || []).push({ a: x.antwort || {}, ok: x.richtig, n: +x.anzahl }));
+      data = d; online = true;
+      const r = await fetch(SB_URL + '/rest/v1/steuerung?select=frage,aufgeloest,reset_nr&runde=eq.' + encodeURIComponent(RUNDE), { headers:{ apikey:SB_KEY } });
+      if (r.ok) ctl = (await r.json())[0] || { frage:0, aufgeloest:false, reset_nr:0 };
+    } catch (e) { online = false; }
+    refreshLive();
+  }
+  async function steuern(frage, aufgeloest){
+    if (!pin) return;
+    try { await rpc('steuern', { p_runde: RUNDE, p_frage: frage, p_aufgeloest: aufgeloest, p_pin: pin }); ctl = Object.assign({}, ctl, { frage, aufgeloest }); load(); }
+    catch (e) { toast('Handys konnten nicht gesteuert werden: ' + (e.message || '').slice(0, 80)); }
+  }
+  const total = n => (data[n] || []).reduce((s,x) => s + x.n, 0);
+  const right = n => (data[n] || []).filter(x => x.ok).reduce((s,x) => s + x.n, 0);
+  const pct = (a,b) => b ? Math.round(100*a/b) : 0;
+
+  /* ---------- Folien rendern ---------- */
+  const fill = svg => svg.replace('<svg ', '<svg preserveAspectRatio="xMidYMid slice" ');
+  const fig = (f, cls) => { if (!f) return ''; let svg = figSVG(f, PAL); if (f.k === 'strip') svg = fill(svg);
+    if (f.k === 'ekg12') cls = (cls || '').replace('strip', '') + ' ekg12'; return `<div class="fig ${cls||''}">${svg}</div>`; };
+  const isWide = f => f && (f.k === 'strip' || f.k === 'ekg12');
+  const bl = arr => `<ul class="b">${arr.map(([a,b]) => `<li>${b ? `<b>${esc(a)}</b> ${esc(b)}` : `<b>${esc(a)}</b>`}</li>`).join('')}</ul>`;
+  const nl = arr => `<ol class="n">${arr.map(([a,b]) => `<li><span>${b ? `<b>${esc(a)}</b> ${esc(b)}` : `<b>${esc(a)}</b>`}</span></li>`).join('')}</ol>`;
+  const tbl = t => `<table class="t"><thead><tr>${t.head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${t.rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const cols = c => `<div class="cols">${c.map(x => `<section><h3>${esc(x.h)}</h3><ul>${x.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></section>`).join('')}</div>`;
+  const foot = n => `<div class="s-foot"><span>${esc(TITLE)}</span><span>${n}</span></div>`;
+  const trace = () => `<div class="trace">${strip('sinus', TRACE, { dur: 10 }).replace('<svg ', '<svg preserveAspectRatio="none" ')}</div>`;
+  function qrSVG(text){ if (!window.qrcode) return ''; const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ scalable:true, margin:0 }); }
+
+  function slideHTML(s, n){
+    if (s.kind === 'title') return `<div class="slide s-red s-title"><h1>${esc(s.title)}</h1><div class="sub">${esc(s.sub||'')}</div>
+      <div class="link"><b>Link zum Quiz</b><code>${esc(quizURL.replace(/^https?:\/\//,''))}</code></div>
+      <div class="qrcard"><div class="qr">${qrSVG(quizURL)}</div><div style="margin-top:10px">Quiz auf dem Handy öffnen</div></div>${trace()}</div>`;
+    if (s.kind === 'section') return `<div class="slide s-red s-section"><h1>${esc(s.title)}</h1><div class="sub">${esc(s.sub||'')}</div>${trace()}</div>`;
+    const head = `<div class="s-head"><h1>${esc(s.title)}</h1></div>`;
+    let body = '';
+    if (s.kind === 'case') body = `<div class="box">${esc(s.text)}</div>${fig(s.fig, 'strip')}`;
+    else if (s.kind === 'bigfig') body = `<div class="fig" style="flex:1;min-height:0">${figSVG(s.fig, PAL)}</div>${s.cap ? `<div class="cap">${esc(s.cap)}</div>` : ''}${s.satz ? `<div class="satz">${esc(s.satz)}</div>` : ''}`;
+    else if (s.grid) body = `<div class="grid4">${s.grid.map(g => `<figure>${fig(g.fig)}<figcaption>${esc(g.cap)}</figcaption></figure>`).join('')}</div>`;
+    else {
+      const text = (s.bullets ? bl(s.bullets) : '') + (s.numbered ? nl(s.numbered) : '') + (s.cols ? cols(s.cols) : '') + (s.table ? tbl(s.table) : '') + (s.aside ? `<div class="aside">${esc(s.aside)}</div>` : '');
+      if (!s.fig) body = text;
+      else if (isWide(s.fig)) body = fig(s.fig, 'strip') + text;
+      else if (s.table) body = `<div class="row">${fig(s.fig, 'side')}<div class="col">${text}</div></div>`;
+      else body = `<div class="row"><div class="col">${text}</div>${fig(s.fig, 'side')}</div>`;
+    }
+    return `<div class="slide">${head}<div class="s-body">${body}</div>${foot(n)}</div>`;
+  }
+
+  function shuffled(arr, seed){ const a = arr.map((v,i)=>i); let x = seed*9301+49297; for(let i=a.length-1;i>0;i--){ x=(x*9301+49297)%233280; const j=Math.floor(x/233280*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } if(a.every((v,i)=>v===i)) a.push(a.shift()); return a; }
+  const pool = q => [...new Set(q.rows.map(r=>r[1]).concat(q.extra||[]))].sort((a,b)=>a.localeCompare(b,'de'));
+  function qFigs(q){
+    if (q.figs) return `<div class="figs" style="flex:0 0 46%">${q.figs.map(f => fig(f)).join('')}</div>`;
+    return '';
+  }
+  function liveChip(q){ const N = total(q.n), on = online && ctl && ctl.frage === q.n && !ctl.aufgeloest;
+    return `<div class="live${on ? '' : ' off'}" data-live="${q.n}"><span class="dot"></span><span>${N} ${N === 1 ? 'Antwort' : 'Antworten'}</span></div>`; }
+
+  function questionHTML(q, sol, n){
+    const rows = data[q.n] || [], N = total(q.n);
+    const head = `<div class="s-head" style="right:280px"><span class="badge${sol ? ' sol' : ''}">${sol ? 'Lösung' : 'Frage'} ${q.n}</span><h1>${esc(q.q)}</h1></div>`;
+    let body = '';
+    if (q.t === 'mc') {
+      const c = q.opts.map(() => 0); rows.forEach(x => { if (x.a.pick != null && c[x.a.pick] != null) c[x.a.pick] += x.n; });
+      const two = !!q.fig && q.fig.k === 'strip';
+      const opts = `<div class="opts${two ? ' two' : ''}">${q.opts.map((o,k) => sol
+        ? `<div class="opt o${L[k]}${k === q.correct ? ' ok' : ' dim'}"><div class="fill" style="width:${pct(c[k],N)}%"></div><span class="l">${L[k]}</span><span class="x">${esc(o)}</span><span class="p">${pct(c[k],N)} %<small>${c[k]}</small></span></div>`
+        : `<div class="opt o${L[k]}"><span class="l">${L[k]}</span><span class="x">${esc(o)}</span></div>`).join('')}</div>`;
+      const why = sol ? `<div class="why">${esc(q.why)}</div>` : '';
+      if (!q.fig) body = opts + why;
+      else if (q.fig.k === 'strip') body = fig(q.fig, 'strip') + opts + why;
+      else body = `<div class="row">${fig(q.fig, 'side')}<div class="col">${opts}${why}</div></div>`;
+    } else if (q.t === 'sel') {
+      const lines = `<div class="lines">${q.rows.map((r,k) => {
+        if (!sol) return `<div class="line"><b>${esc(r[0])}</b><span></span></div>`;
+        let good = 0; rows.forEach(x => { if ((x.a.v||[])[k] === r[1]) good += x.n; });
+        return `<div class="line sol"><b>${esc(r[0])}</b><span>${esc(r[1])}</span><i>${N ? pct(good,N) + ' %' : ''}</i></div>`; }).join('')}</div>`;
+      const side = sol ? `<div class="why">${esc(q.why)}</div>` : `<div class="pool"><h4>Zur Auswahl</h4>${pool(q).map(esc).join(' · ')}</div>`;
+      const left = q.fig ? fig(q.fig, 'side') : qFigs(q);
+      body = left ? `<div class="row">${left}<div class="col">${lines}${side}</div></div>` : lines + side;
+    } else {
+      const ord = sol ? q.items.map((v,i) => i) : shuffled(q.items, q.n);
+      body = `<ol class="items">${ord.map((v,k) => { if (!sol) return `<li>${esc(q.items[v])}</li>`;
+        let good = 0; rows.forEach(x => { if ((x.a.seq||[])[k] === k) good += x.n; });
+        return `<li><b>${k+1}</b>${esc(q.items[v])}<i>${N ? pct(good,N) + ' %' : ''}</i></li>`; }).join('')}</ol>` + (sol ? `<div class="why">${esc(q.why)}</div>` : '');
+    }
+    return `<div class="slide s-q">${head}${liveChip(q)}<div class="s-body">${body}</div>${foot(n)}</div>`;
+  }
+
+  const stepHTML = i => { const st = STEPS[i]; if (!st) return '<div class="slide s-red s-section"><h1>Ende</h1></div>'; return st.s ? slideHTML(st.s, i+1) : questionHTML(st.q, st.sol, i+1); };
+  const notesOf = i => { const st = STEPS[i]; if (!st) return ''; const x = st.s || st.q; return (st.q && st.sol ? `<p class="q">${esc(st.q.why)}</p>` : '') + `<p>${esc(x.notes || '–')}</p>`; };
+
+  /* Text passend verkleinern, wenn eine Folie zu voll ist */
+  function fit(root){ root.querySelectorAll('.s-body').forEach(b => { let fs = 28;
+    const h = b.parentNode.querySelector('.s-head'); if (h) b.style.top = Math.max(118, h.offsetTop + h.offsetHeight + 22) + 'px'; b.style.setProperty('--fs', fs + 'px');
+    while (fs > 15 && b.scrollHeight > b.clientHeight + 1) { fs -= 1; b.style.setProperty('--fs', fs + 'px'); } }); }
+
+  function mount(container, i){
+    container.innerHTML = stepHTML(i);
+    const sl = container.firstElementChild, W = container.clientWidth, Hh = container.clientHeight;
+    const k = Math.min(W / 1280, Hh / 720);
+    sl.style.transform = `translate(${(W - 1280*k)/2}px,${(Hh - 720*k)/2}px) scale(${k})`;
+    fit(container);
+  }
+
+  /* ---------- Ansichten ---------- */
+  const app = document.getElementById('app');
+  let frame, cur, nxt, notesEl, statEl, timerStart = null;
+  if (REF) {
+    document.body.classList.add('ref'); document.title = 'Referentenansicht · ' + TITLE;
+    app.innerHTML = `<div class="refwrap"><div class="cur" id="cur"></div>
+      <div class="refside"><div class="lbl">Nächste Folie</div><div class="nxt" id="nxt"></div>
+        <div class="clock"><b id="timer">00:00</b><span id="now"></span></div>
+        <div class="stat" id="stat"></div>
+        <div class="refbtns"><button id="r-prev">‹ Zurück</button><button id="r-next">Weiter ›</button><button id="r-mod">Moderation</button><button id="r-timer">Zeit neu</button><button id="r-wipe">Statistik zurücksetzen</button></div></div>
+      <div class="notes" id="notes"></div></div>`;
+    cur = document.getElementById('cur'); nxt = document.getElementById('nxt'); notesEl = document.getElementById('notes'); statEl = document.getElementById('stat');
+    document.getElementById('r-prev').onclick = () => go(pos - 1, true);
+    document.getElementById('r-next').onclick = () => go(pos + 1, true);
+    document.getElementById('r-mod').onclick = toggleMod;
+    document.getElementById('r-wipe').onclick = wipe;
+    document.getElementById('r-timer').onclick = () => { timerStart = Date.now(); };
+    timerStart = Date.now();
+    setInterval(() => { const s = Math.floor((Date.now() - timerStart) / 1000); document.getElementById('timer').textContent = String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+      document.getElementById('now').textContent = new Date().toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }); }, 1000);
+  } else {
+    app.innerHTML = `<div class="stage"><div class="frame" id="frame"></div></div>
+      <div class="bar" id="bar"><button id="b-prev" title="Zurück (←)">‹</button><span class="pos" id="b-pos"></span><button id="b-next" title="Weiter (→)">›</button>
+      <button id="b-ref" title="Referentenansicht (R)">Referentenansicht</button><button id="b-mod">Moderation</button><button id="b-wipe">Statistik zurücksetzen</button><button id="b-fs" title="Vollbild (F)">Vollbild</button></div>`;
+    frame = document.getElementById('frame');
+    document.getElementById('b-prev').onclick = () => go(pos - 1, true);
+    document.getElementById('b-next').onclick = () => go(pos + 1, true);
+    document.getElementById('b-ref').onclick = openRef;
+    document.getElementById('b-mod').onclick = toggleMod;
+    document.getElementById('b-wipe').onclick = wipe;
+    document.getElementById('b-fs').onclick = fullscreen;
+    frame.addEventListener('click', e => { if (!e.target.closest('a,button')) go(pos + 1, true); });
+    let idle; const bar = document.getElementById('bar');
+    const wake = () => { bar.classList.remove('hide'); clearTimeout(idle); idle = setTimeout(() => bar.classList.add('hide'), 2500); };
+    document.addEventListener('mousemove', wake); wake();
+  }
+
+  function sizeFrame(){ if (!frame) return; const k = Math.min(innerWidth / 1280, innerHeight / 720); frame.style.width = 1280*k + 'px'; frame.style.height = 720*k + 'px'; }
+  function draw(){
+    if (REF) { mount(cur, pos); mount(nxt, pos + 1); notesEl.innerHTML = notesOf(pos); }
+    else { sizeFrame(); mount(frame, pos); document.getElementById('b-pos').textContent = (pos+1) + ' / ' + STEPS.length; }
+    modButtons(); refreshLive();
+  }
+
+  /* Live-Teile aktualisieren, ohne die ganze Folie neu aufzubauen (außer auf der Lösungsfolie) */
+  let lastSig = '';
+  function refreshLive(){
+    const st = STEPS[pos];
+    if (st && st.q) {
+      const sig = JSON.stringify(data[st.q.n] || []) + (ctl ? ctl.frage + ':' + ctl.aufgeloest : '');
+      if (st.sol && sig !== lastSig) { lastSig = sig; if (REF) mount(cur, pos); else mount(frame, pos); }
+      else document.querySelectorAll(`[data-live="${st.q.n}"]`).forEach(el => { const tmp = document.createElement('div'); tmp.innerHTML = liveChip(st.q); el.replaceWith(tmp.firstChild); });
+      lastSig = sig;
+    }
+    if (statEl) statEl.innerHTML = (pin ? '<b style="color:#6fd79c">Moderation an</b> – Fragen werden beim Weiterschalten freigegeben und aufgelöst.' : '<b style="color:#ff9b90">Moderation aus</b> – Handys folgen nicht. Mit „Moderation“ und PIN einschalten.')
+      + `<br>Runde „${esc(RUNDE)}“ · ${online ? (ctl && ctl.frage ? `Handys: Frage ${ctl.frage}${ctl.aufgeloest ? ' (aufgelöst)' : ''}` : 'Handys warten') : 'keine Verbindung'}`
+      + (st && st.q ? ` · ${total(st.q.n)} Antworten, davon ${pct(right(st.q.n), total(st.q.n))} % richtig` : '');
+  }
+  function modButtons(){ ['b-mod','r-mod'].forEach(id => { const b = document.getElementById(id); if (b) { b.textContent = pin ? 'Moderation an' : 'Moderation'; b.classList.toggle('mod-on', !!pin); } });
+    ['b-wipe','r-wipe'].forEach(id => { const b = document.getElementById(id); if (b) b.hidden = !pin; }); }
+
+  /* ---------- Navigation + Synchronisation zwischen Fenstern ---------- */
+  const chan = 'BroadcastChannel' in window ? new BroadcastChannel('lk-vortrag:' + RUNDE) : null;
+  function go(i, local){
+    i = Math.max(0, Math.min(STEPS.length - 1, i));
+    if (i === pos && !local) return;
+    const prev = pos; pos = i;
+    try { localStorage.setItem('lk-vortrag-pos:' + RUNDE, pos); } catch (e) {}
+    history.replaceState(null, '', '#' + (pos + 1));
+    lastSig = ''; draw();
+    if (local) {
+      if (chan) chan.postMessage({ pos });
+      const st = STEPS[pos];
+      if (st.q && i !== prev) steuern(st.q.n, st.sol);
+    }
+  }
+  if (chan) chan.onmessage = e => { if (e.data && typeof e.data.pos === 'number') go(e.data.pos, false); if (e.data && 'pin' in e.data) { pin = e.data.pin; modButtons(); refreshLive(); } };
+
+  function openRef(){ const u = new URL(location.href); u.searchParams.set('referent', ''); u.hash = '#' + (pos + 1); window.open(u.href, 'lk-referent', 'width=1280,height=800'); }
+  function fullscreen(){ if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); }
+  async function toggleMod(){
+    if (pin) { if (!confirm('Moderation auf diesem Gerät beenden?')) return; pin = ''; try { localStorage.removeItem('lk-pin'); } catch (e) {} if (chan) chan.postMessage({ pin }); modButtons(); refreshLive(); return; }
+    const p = prompt('Moderations-PIN:'); if (!p) return;
+    try { if (!(await rpc('pin_ok', { p_pin: p }))) { toast('PIN falsch.'); return; } } catch (e) { toast('Keine Verbindung zur Datenbank.'); return; }
+    pin = p; try { localStorage.setItem('lk-pin', p); } catch (e) {} if (chan) chan.postMessage({ pin });
+    modButtons(); toast('Moderation an: Fragen werden beim Weiterschalten freigegeben.');
+    const st = STEPS[pos]; if (st.q) steuern(st.q.n, st.sol);
+    refreshLive();
+  }
+  async function wipe(){
+    if (!pin) return;
+    if (!confirm(`Alle Antworten der Runde „${RUNDE}“ löschen und die Handys auf „Gleich geht es los“ zurücksetzen?`)) return;
+    try { await rpc('zuruecksetzen', { p_runde: RUNDE, p_pin: pin }); data = {}; toast('Statistik zurückgesetzt.'); load(); }
+    catch (e) { toast('Zurücksetzen fehlgeschlagen.'); }
+  }
+  let tt; function toast(m){ const t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 3200); }
+
+  let typed = '';
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (/^[0-9]$/.test(k)) { typed += k; return; }
+    if (k === 'Enter' && typed) { go(parseInt(typed, 10) - 1, true); typed = ''; return; }
+    typed = '';
+    if (['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(k)) { e.preventDefault(); go(pos + 1, true); }
+    else if (['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(k)) { e.preventDefault(); go(pos - 1, true); }
+    else if (k === 'Home') go(0, true);
+    else if (k === 'End') go(STEPS.length - 1, true);
+    else if (k === 'f' || k === 'F') fullscreen();
+    else if ((k === 'r' || k === 'R') && !REF) openRef();
+    else if (k === 'b' || k === 'B' || k === '.') { const f = document.getElementById('frame'); if (f) f.style.visibility = f.style.visibility === 'hidden' ? '' : 'hidden'; }
+  });
+  addEventListener('resize', draw);
+  addEventListener('hashchange', () => { const h = parseInt(location.hash.slice(1), 10); if (h > 0 && h - 1 !== pos) go(h - 1, true); });
+
+  draw(); load();
+  setInterval(() => { const st = STEPS[pos]; if (st && st.q) load(); }, 3000);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  window.__vortrag = { STEPS, go: i => go(i, true), get pos(){ return pos; } };
+})();
+</script>
+</body>
+</html>

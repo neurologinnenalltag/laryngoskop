@@ -34,10 +34,10 @@
     for (const item of queue()) {
       let drop = false;
       try {
-        const r = await fetch(SB_URL + '/rest/v1/antworten?on_conflict=runde,geraet,frage', { method: 'POST',
-          headers: { apikey: SB_KEY, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates,return=minimal' },
+        const r = await fetch(SB_URL + '/rest/v1/antworten', { method: 'POST',
+          headers: { apikey: SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
           body: JSON.stringify(item) });
-        drop = r.ok || (r.status >= 400 && r.status < 500);   // 4xx: abgelehnt (z. B. Frage nicht mehr offen) → nicht erneut senden
+        drop = r.ok || (r.status >= 400 && r.status < 500);   // 4xx: abgelehnt (409 = schon beantwortet, 401/403 = Frage nicht mehr offen) → nicht erneut senden
       } catch (e) { /* offline: später erneut */ }
       if (drop) setQueue(queue().filter(x => !(x.runde === item.runde && x.frage === item.frage && x.geraet === item.geraet)));
     }

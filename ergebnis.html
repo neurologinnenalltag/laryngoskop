@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EKG-Quiz · Ergebnisse</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f7f4f2; --surface:#ffffff; --fg:#1c1416; --muted:#63585a; --line:#e0d9d5;
+  --accent:#a10030; --accent-fg:#ffffff; --hi:#ec8c06; --hi-fg:#1c1416;
+  --good:#17794a; --good-bg:#e1f3e9; --bad:#b8322a; --bad-bg:#fbe6e3;
+  --paper:#fffdfb; --wall:#efe6df; --grid:#f6d3d8; --grid-b:#eaa3ad; --trace:#1c1416;
+  --oA:#2757c9; --oB:#c2570c; --oC:#7a3fb5; --oD:#0d7f8a;
+  --display:"Bricolage Grotesque","Figtree",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#151213; --surface:#201b1c; --fg:#f1ebea; --muted:#b3a8a8; --line:#3a3033;
+  --accent:#ffad42; --accent-fg:#2a1500; --good:#6fd79c; --good-bg:#153526; --bad:#ff9b90; --bad-bg:#40201d;
+  --paper:#1a1516; --wall:#4a3a33; --grid:#2a2123; --grid-b:#3d2f32; --trace:#ffbe6b;
+  --oA:#3f6fe0; --oB:#cf6a1f; --oC:#9259cf; --oD:#1795a1; color-scheme:dark } }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 18px/1.45 var(--body)}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 20px 90px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between}
+.brand{font:700 24px/1.1 var(--display);letter-spacing:-.01em}
+.stat{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+.live{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--good);margin-right:6px;vertical-align:middle}
+.live.off{background:var(--bad)}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,button{font:600 15px var(--body);color:var(--fg);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px}
+button{cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 22px;display:flex;flex-direction:column;gap:16px}
+.meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.num{font:700 16px var(--display);background:var(--hi);color:var(--hi-fg);border-radius:999px;padding:4px 14px}
+.sec{color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.n{margin-left:auto;color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
+h1{font:700 clamp(22px,3vw,34px)/1.2 var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.figs{display:flex;gap:10px;flex-wrap:wrap}
+.fig{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);flex:1 1 300px;max-width:560px}
+.fig svg{display:block;width:100%;height:auto}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar{display:grid;grid-template-columns:44px 1fr 92px;gap:12px;align-items:center}
+.l{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 20px var(--display)}
+.oA{background:var(--oA)}.oB{background:var(--oB)}.oC{background:var(--oC)}.oD{background:var(--oD)}
+.track{position:relative;background:var(--bg);border:1px solid var(--line);border-radius:10px;min-height:48px;overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;background:color-mix(in srgb,var(--muted) 28%,transparent);border-radius:0 8px 8px 0}
+.lbl{position:relative;padding:11px 14px;font-weight:600}
+.pct{font:700 26px var(--display);text-align:right;font-variant-numeric:tabular-nums}
+.pct small{display:block;font:500 13px var(--body);color:var(--muted)}
+.bar.good .fill{background:color-mix(in srgb,var(--good) 35%,transparent)}
+.bar.good .track{border-color:var(--good)}
+.bar.good .lbl::after{content:"  ✓ richtig";color:var(--good);font-weight:700}
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:minmax(80px,auto) 1fr 92px;gap:12px;align-items:center}
+.row b{font-weight:700}
+.sub{font-size:14px;color:var(--muted)}
+.big{font:700 64px/1 var(--display);font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center}
+.over{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);cursor:pointer;text-align:left;font-weight:500}
+.tile b{display:block;font:700 22px var(--display)}
+.tile .m{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:6px}
+.tile .m i{display:block;height:100%;background:var(--good)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 20px}
+nav .in{max-width:1100px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap}
+nav button{flex:1 1 120px}
+#qr{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 96%,transparent);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px;z-index:9;text-align:center}
+#qr.on{display:flex}
+#qr .code{background:#fff;padding:18px;border-radius:16px;width:min(70vh,86vw)}
+#qr .code svg{display:block;width:100%;height:auto}
+#qr p{margin:0;font:700 clamp(18px,2.6vw,30px) var(--display);word-break:break-all}
+.hint{color:var(--muted);font-size:14px}
+.badge{font:700 13px var(--body);border-radius:999px;padding:4px 10px;background:var(--line);color:var(--fg)}
+.badge.on{background:var(--good);color:#fff}
+.badge.rev{background:var(--accent);color:var(--accent-fg)}
+button.go{background:var(--good);color:#fff;border-color:var(--good)}
+button.warn{border-color:var(--bad);color:var(--bad)}
+@media (max-width:640px){.bar,.row{grid-template-columns:36px 1fr 70px}.l{width:36px;height:36px;font-size:16px}.row{grid-template-columns:1fr 70px}.row .lab{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">EKG-Quiz · Ergebnisse</div>
+      <div class="stat"><span class="live" id="live"></span><span id="status">verbinde …</span></div>
+    </div>
+    <div class="ctl">
+      <label for="runde" class="hint">Runde</label>
+      <input id="runde" size="12" autocomplete="off" spellcheck="false">
+      <button type="button" id="qrbtn">QR-Code zeigen</button>
+      <button type="button" id="mod">Moderation</button>
+      <button type="button" id="wipe" hidden>Statistik zurücksetzen</button>
+    </div>
+  </header>
+  <main id="main"></main>
+  <p class="hint">Tasten: ← → blättern · F freigeben · Leertaste Auflösung · Ü Übersicht · Q QR-Code. Aktualisiert sich alle 4 Sekunden. Angezeigt werden nur Summen, keine Einzelantworten.</p>
+</div>
+<nav><div class="in">
+  <button type="button" id="prev">Zurück</button>
+  <button type="button" id="over">Übersicht</button>
+  <button type="button" id="release" class="go" hidden>Frage freigeben</button>
+  <button type="button" id="reveal" class="primary">Auflösung zeigen</button>
+  <button type="button" id="next">Weiter</button>
+</div></nav>
+<div id="qr" role="dialog" aria-label="QR-Code zum Quiz"><div class="code" id="qrcode"></div><p id="qrurl"></p><span class="hint">Klicken oder Esc zum Schließen</span></div>
+
+<script src="ekg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  const SB_URL = 'https://jzsxzdjssxtgzylnntiq.supabase.co', SB_KEY = 'sb_publishable_vsqhwmlF5-Iby8n0oyyM9w_Z_yq9Wly';
+  const {DECK, figSVG} = window.EKG;
+  const QS = DECK.filter(x => x.t !== 'slide');
+  const PAL = {fg:'var(--fg)',muted:'var(--muted)',paper:'var(--paper)',grid:'var(--grid)',gridBold:'var(--grid-b)',trace:'var(--trace)',accent:'var(--accent)',surface:'var(--surface)',wall:'var(--wall)',mark:'var(--hi)',markFg:'#1c1416'};
+  const L = ['A','B','C','D','E','F'];
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const clean = s => (String(s||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,40)) || 'offen';
+  const params = new URLSearchParams(location.search);
+  let runde = clean(params.get('runde'));
+  let i = Math.max(0, Math.min(QS.length - 1, (+params.get('frage') || 1) - 1));
+  let view = 'q', shown = {}, data = {}, ok = false, last = null, ctl = null;
+  let pin = (() => { try { return sessionStorage.getItem('lk-pin') || ''; } catch (e) { return ''; } })();
+  const H = { apikey: SB_KEY, 'Content-Type': 'application/json' };
+  async function rpc(fn, body){ const r = await fetch(SB_URL + '/rest/v1/rpc/' + fn, { method:'POST', headers:H, body: JSON.stringify(body) }); if (!r.ok) throw new Error((await r.text()) || r.status); const t = await r.text(); return t ? JSON.parse(t) : null; }
+  async function steuern(frage, aufgeloest){
+    try { await rpc('steuern', { p_runde: runde, p_frage: frage, p_aufgeloest: aufgeloest, p_pin: pin }); await loadCtl(); }
+    catch (e) { alert('Steuerung fehlgeschlagen: ' + e.message); }
+  }
+  async function loadCtl(){
+    try { const r = await fetch(SB_URL + '/rest/v1/steuerung?select=frage,aufgeloest,reset_nr&runde=eq.' + encodeURIComponent(runde), { headers:{ apikey:SB_KEY } });
+      if (r.ok) ctl = (await r.json())[0] || { frage:0, aufgeloest:false, reset_nr:0 }; } catch (e) {}
+  }
+  $('runde').value = runde;
+
+  const quizURL = () => new URL('./?runde=' + encodeURIComponent(runde), location.href).href;
+  function setURL(){ const u = new URL(location.href); u.searchParams.set('runde', runde); u.searchParams.set('frage', i + 1); history.replaceState(null, '', u); }
+
+  async function load(){
+    try {
+      const r = await fetch(SB_URL + '/rest/v1/rpc/ergebnis', { method:'POST', headers:{ apikey:SB_KEY, 'Content-Type':'application/json' }, body: JSON.stringify({ p_runde: runde }) });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const rows = await r.json(), d = {};
+      rows.forEach(x => (d[x.frage] = d[x.frage] || []).push({ a: x.antwort || {}, ok: x.richtig, n: +x.anzahl }));
+      data = d; ok = true; last = new Date();
+      await loadCtl();
+    } catch (e) { ok = false; console.warn(e); }
+    status(); render();
+  }
+  function total(n){ return (data[n] || []).reduce((s,x)=>s+x.n,0); }
+  function people(){ return Math.max(0, ...QS.map(q=>total(q.n))); }
+  function status(){
+    $('live').className = 'live' + (ok ? '' : ' off');
+    $('mod').textContent = pin ? 'Moderation aktiv' : 'Moderation';
+    $('wipe').hidden = !pin; $('release').hidden = !pin || view !== 'q';
+    $('status').textContent = ok ? `${ctl && ctl.frage ? `Handys zeigen Frage ${ctl.frage}${ctl.aufgeloest ? ' (aufgelöst)' : ''} · ` : (pin ? 'Handys warten · ' : '')}Runde „${runde}“ · bis zu ${people()} Teilnehmende · Stand ${last.toLocaleTimeString('de-DE')}` : 'Keine Verbindung zur Datenbank – nächster Versuch läuft';
+  }
+  const pct = (a,b) => b ? Math.round(100*a/b) : 0;
+  const right = n => (data[n]||[]).filter(x=>x.ok).reduce((s,x)=>s+x.n,0);
+
+  function figs(q){ let h='';
+    if(q.fig) h += `<div class="fig">${figSVG(q.fig,PAL)}</div>`;
+    if(q.figs) h += q.figs.map(f=>`<div class="fig">${figSVG(f,PAL)}</div>`).join('');
+    return h ? `<div class="figs">${h}</div>` : ''; }
+
+  function bodyMC(q, rows, N, rev){
+    const c = q.opts.map(()=>0); rows.forEach(x => { if (x.a.pick != null && c[x.a.pick] != null) c[x.a.pick] += x.n; });
+    return `<div class="bars">${q.opts.map((o,k)=>`<div class="bar${rev && k===q.correct ? ' good' : ''}"><span class="l o${L[k]}">${L[k]}</span><div class="track"><div class="fill" style="width:${pct(c[k],N)}%"></div><div class="lbl">${esc(o)}</div></div><div class="pct">${pct(c[k],N)} %<small>${c[k]} Stimmen</small></div></div>`).join('')}</div>`;
+  }
+  function bodySel(q, rows, N, rev){
+    return `<div class="rows">${q.rows.map((r,k)=>{
+      const cnt = {}; let good = 0;
+      rows.forEach(x => { const v = (x.a.v||[])[k] || '–'; cnt[v] = (cnt[v]||0) + x.n; if (v === r[1]) good += x.n; });
+      const wrong = Object.entries(cnt).filter(([v])=>v!==r[1]).sort((a,b)=>b[1]-a[1])[0];
+      return `<div class="row"><b class="lab">${esc(r[0])}</b><div class="track"><div class="fill" style="width:${pct(good,N)}%;background:color-mix(in srgb,var(--good) 35%,transparent)"></div><div class="lbl">${rev ? esc(r[1]) : 'Anteil richtig zugeordnet'}${rev && wrong ? `<div class="sub">häufigster Fehler: ${esc(wrong[0])} (${wrong[1]}×)</div>` : ''}</div></div><div class="pct">${pct(good,N)} %</div></div>`; }).join('')}</div>`;
+  }
+  function bodyOrder(q, rows, N, rev){
+    return `<div class="rows">${q.items.map((it,k)=>{
+      let good = 0; rows.forEach(x => { if ((x.a.seq||[])[k] === k) good += x.n; });
+      return `<div class="row"><b class="lab">Platz ${k+1}</b><div class="track"><div class="fill" style="width:${pct(good,N)}%;background:color-mix(in srgb,var(--good) 35%,transparent)"></div><div class="lbl">${rev ? esc(it) : 'an richtiger Stelle'}</div></div><div class="pct">${pct(good,N)} %</div></div>`; }).join('')}</div>`;
+  }
+
+  function render(){
+    $('reveal').hidden = view !== 'q';
+    $('prev').disabled = view==='q' && i===0; $('next').disabled = view==='q' && i===QS.length-1;
+    $('over').textContent = view==='q' ? 'Übersicht' : 'Zur Frage';
+    if (view === 'over') {
+      $('main').innerHTML = `<section class="card"><h1>Übersicht · Anteil komplett richtig</h1><div class="over">${QS.map((q,k)=>{ const N = total(q.n), p = pct(right(q.n),N);
+        return `<button type="button" class="tile" data-go="${k}">Frage ${q.n}<b>${N ? p + ' %' : '–'}</b><span class="sub">${N} Antworten</span><div class="m"><i style="width:${p}%"></i></div></button>`; }).join('')}</div></section>`;
+      return; }
+    const q = QS[i], rows = data[q.n] || [], N = total(q.n);
+    const isLive = !!(ctl && ctl.frage === q.n), rev = !!shown[q.n] || (isLive && ctl.aufgeloest);
+    $('reveal').textContent = rev ? 'Auflösung ausblenden' : (pin && isLive ? 'Auflösen (auch Handys)' : 'Auflösung zeigen');
+    $('release').hidden = !pin; $('release').disabled = isLive && !ctl.aufgeloest;
+    $('release').textContent = isLive ? (ctl.aufgeloest ? 'Erneut freigeben' : 'Ist freigegeben') : 'Frage freigeben';
+    const badge = isLive ? `<span class="badge ${ctl.aufgeloest ? 'rev' : 'on'}">${ctl.aufgeloest ? 'aufgelöst' : 'live auf den Handys'}</span>` : (pin ? '<span class="badge">nicht freigegeben</span>' : '');
+    const b = !N ? `<div class="empty">Noch keine Antworten in Runde „${esc(runde)}“.</div>`
+      : q.t==='mc' ? bodyMC(q,rows,N,rev) : q.t==='sel' ? bodySel(q,rows,N,rev) : bodyOrder(q,rows,N,rev);
+    const summary = N && rev ? `<div class="sub">${pct(right(q.n),N)} % haben die Frage komplett richtig beantwortet.</div>` : '';
+    $('main').innerHTML = `<section class="card"><div class="meta"><span class="num">Frage ${q.n} / ${QS.length}</span><span class="sec">${esc(q.sec||'')}</span>${badge}<span class="n">${N} Antworten</span></div><h1>${esc(q.q)}</h1>${figs(q)}${b}${summary}</section>`;
+  }
+
+  function go(k){ i = Math.max(0, Math.min(QS.length-1, k)); view='q'; setURL(); render(); window.scrollTo(0,0); }
+  $('prev').onclick = () => view==='q' ? go(i-1) : (view='q', render());
+  $('next').onclick = () => view==='q' ? go(i+1) : (view='q', render());
+  $('over').onclick = () => { view = view==='q' ? 'over' : 'q'; render(); };
+  $('reveal').onclick = () => { const n = QS[i].n, isLive = ctl && ctl.frage === n;
+    if (pin && isLive && !ctl.aufgeloest) { shown[n] = true; steuern(n, true).then(render); return; }
+    if (isLive && ctl.aufgeloest) { shown[n] = false; ctl.aufgeloest && pin ? steuern(n, false).then(render) : render(); return; }
+    shown[n] = !shown[n]; render(); };
+  $('release').onclick = () => { const n = QS[i].n; shown[n] = false; steuern(n, false).then(() => { status(); render(); }); };
+  $('mod').onclick = async () => {
+    if (pin) { if (confirm('Moderation auf diesem Gerät beenden?')) { pin = ''; try { sessionStorage.removeItem('lk-pin'); } catch (e) {} status(); render(); } return; }
+    const p = prompt('Moderations-PIN:'); if (!p) return;
+    try { const okPin = await rpc('pin_ok', { p_pin: p }); if (!okPin) { alert('PIN falsch.'); return; }
+      pin = p; try { sessionStorage.setItem('lk-pin', p); } catch (e) {} status(); render(); }
+    catch (e) { alert('Keine Verbindung zur Datenbank: ' + e.message); }
+  };
+  $('wipe').onclick = async () => {
+    if (!confirm(`Alle Antworten der Runde „${runde}“ löschen und die Handys auf „Gleich geht es los“ zurücksetzen?`)) return;
+    try { await rpc('zuruecksetzen', { p_runde: runde, p_pin: pin }); shown = {}; await load(); }
+    catch (e) { alert('Zurücksetzen fehlgeschlagen: ' + e.message); }
+  };
+  $('main').addEventListener('click', e => { const t = e.target.closest('[data-go]'); if (t) go(+t.dataset.go); });
+  $('runde').addEventListener('change', e => { runde = clean(e.target.value); e.target.value = runde; data = {}; setURL(); load(); });
+
+  function showQR(on){
+    const box = $('qr'); if (!on) { box.classList.remove('on'); return; }
+    const url = quizURL();
+    if (window.qrcode) { const qr = qrcode(0, 'M'); qr.addData(url); qr.make(); $('qrcode').innerHTML = qr.createSvgTag({ scalable:true, margin:0 }); }
+    else $('qrcode').innerHTML = '<div style="color:#000;padding:20px">QR-Bibliothek nicht geladen</div>';
+    $('qrurl').textContent = url.replace(/^https?:\/\//,''); box.classList.add('on');
+  }
+  $('qrbtn').onclick = () => showQR(true);
+  $('qr').onclick = () => showQR(false);
+  document.addEventListener('keydown', e => {
+    if (e.target.matches('input,select')) return;
+    if (e.key==='Escape') showQR(false);
+    else if (e.key==='ArrowRight' || e.key==='PageDown') $('next').click();
+    else if (e.key==='ArrowLeft' || e.key==='PageUp') $('prev').click();
+    else if (e.key===' ' && view==='q') { e.preventDefault(); $('reveal').click(); }
+    else if (e.key.toLowerCase()==='ü' || e.key.toLowerCase()==='u') $('over').click();
+    else if (e.key.toLowerCase()==='f' && pin && view==='q') $('release').click();
+    else if (e.key.toLowerCase()==='q') showQR(!$('qr').classList.contains('on'));
+  });
+
+  setURL(); render(); load(); setInterval(load, 4000);
+})();
+</script>
+</body>
+</html>

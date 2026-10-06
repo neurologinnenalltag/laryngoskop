@@ -1,6 +1,13 @@
 # Laryngoskop
 
-EKG-Quiz für das Handy – live unter https://neurologinnenalltag.github.io/laryngoskop/
+EKG-Quiz für das Handy mit anonymer Live-Auswertung.
 
-- `index.html` – das Quiz (eine Datei, läuft offline bis auf die Webfonts)
-- `laryngoskop-qr.png` / `laryngoskop-qr.svg` – QR-Code zur Seite
+| Seite | Zweck |
+|---|---|
+| `/?runde=vortrag` | **Vortrag:** Publikum (QR-Code `laryngoskop-qr.png`). Fragen erscheinen erst, wenn sie freigegeben werden. |
+| `/ergebnis.html?runde=vortrag` | **Beamer/Moderation:** Live-Balken, Fragen freigeben, Auflösen, Statistik zurücksetzen (PIN). |
+| `/` | Freier Modus: alle Fragen im eigenen Tempo. |
+
+Dateien: `ekg.js` (Fragen + EKG-Grafiken), `quiz.js` (Teilnehmerseite), `ergebnis.html` (Auswertung), `supabase.sql` (Datenbank).
+
+Gespeichert werden nur Runde, Frage, Antwort, richtig/falsch und eine zufällige Geräte-ID – keine Namen, kein Login. Einzelantworten sind öffentlich nicht lesbar, die Ergebnisseite erhält nur Summen.

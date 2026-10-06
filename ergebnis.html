@@ -44,6 +44,13 @@ h1{font:700 clamp(22px,3vw,34px)/1.2 var(--display);margin:0;text-wrap:balance;l
 .figs{display:flex;gap:10px;flex-wrap:wrap}
 .fig{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--paper);flex:1 1 300px;max-width:560px}
 .fig svg{display:block;width:100%;height:auto}
+.fig.wide{flex-basis:100%;max-width:none;overflow-x:auto}.fig.wide svg{min-width:900px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;background:var(--bg)}
+.pre{display:flex;flex-direction:column;gap:12px}
+.pre h2{margin:0;font:600 14px var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+ol.items{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+ol.items li{border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;font-weight:600;background:var(--bg)}
 .bars{display:flex;flex-direction:column;gap:12px}
 .bar{display:grid;grid-template-columns:44px 1fr 92px;gap:12px;align-items:center}
 .l{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 20px var(--display)}
@@ -111,7 +118,7 @@ button.warn{border-color:var(--bad);color:var(--bad)}
 </div></nav>
 <div id="qr" role="dialog" aria-label="QR-Code zum Quiz"><div class="code" id="qrcode"></div><p id="qrurl"></p><span class="hint">Klicken oder Esc zum Schließen</span></div>
 
-<script src="ekg.js?v=202610061356"></script>
+<script src="ekg.js?v=202610061413"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script>
 (function(){
@@ -167,10 +174,18 @@ button.warn{border-color:var(--bad);color:var(--bad)}
   const right = n => (data[n]||[]).filter(x=>x.ok).reduce((s,x)=>s+x.n,0);
 
   function figs(q){ let h='';
-    if(q.fig) h += `<div class="fig">${figSVG(q.fig,PAL)}</div>`;
+    if(q.fig) h += `<div class="fig${q.fig.k==='ekg12'?' wide':''}">${figSVG(q.fig,PAL)}</div>`;
     if(q.figs) h += q.figs.map(f=>`<div class="fig">${figSVG(f,PAL)}</div>`).join('');
     return h ? `<div class="figs">${h}</div>` : ''; }
 
+  /* Antwortmöglichkeiten vor der Auflösung – so, wie das Publikum sie sieht */
+  function shuffled(arr, seed){ const a = arr.map((v,i)=>i); let x = seed*9301+49297; for(let i=a.length-1;i>0;i--){ x=(x*9301+49297)%233280; const j=Math.floor(x/233280*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } if(a.every((v,i)=>v===i)) a.push(a.shift()); return a; }
+  function choices(q){
+    if(q.t==='mc') return `<div class="bars">${q.opts.map((o,k)=>`<div class="bar" style="grid-template-columns:44px 1fr"><span class="l o${L[k]}">${L[k]}</span><div class="track"><div class="lbl">${esc(o)}</div></div></div>`).join('')}</div>`;
+    if(q.t==='sel'){ const pool = [...new Set(q.rows.map(r=>r[1]).concat(q.extra||[]))].sort((a,b)=>a.localeCompare(b,'de'));
+      return `<div class="pre"><h2>Zuzuordnen</h2><div class="chips">${q.rows.map(r=>`<span class="chip">${esc(r[0])}</span>`).join('')}</div><h2>Auswahl</h2><div class="chips">${pool.map(p=>`<span class="chip">${esc(p)}</span>`).join('')}</div></div>`; }
+    return `<div class="pre"><h2>In die richtige Reihenfolge bringen</h2><ol class="items">${shuffled(q.items, q.n).map(v=>`<li>${esc(q.items[v])}</li>`).join('')}</ol></div>`;
+  }
   function bodyMC(q, rows, N, rev){
     const c = q.opts.map(()=>0); rows.forEach(x => { if (x.a.pick != null && c[x.a.pick] != null) c[x.a.pick] += x.n; });
     return `<div class="bars">${q.opts.map((o,k)=>`<div class="bar${rev && k===q.correct ? ' good' : ''}"><span class="l o${L[k]}">${L[k]}</span><div class="track"><div class="fill" style="width:${pct(c[k],N)}%"></div><div class="lbl">${esc(o)}</div></div><div class="pct">${pct(c[k],N)} %<small>${c[k]} Stimmen</small></div></div>`).join('')}</div>`;
@@ -202,7 +217,7 @@ button.warn{border-color:var(--bad);color:var(--bad)}
     $('release').hidden = !pin; $('release').disabled = isLive && !ctl.aufgeloest;
     $('release').textContent = isLive ? (ctl.aufgeloest ? 'Erneut freigeben' : 'Ist freigegeben') : 'Frage freigeben';
     const badge = isLive ? `<span class="badge ${ctl.aufgeloest ? 'rev' : 'on'}">${ctl.aufgeloest ? 'aufgelöst' : 'live auf den Handys'}</span>` : (pin ? '<span class="badge">nicht freigegeben</span>' : '');
-    const opts = q.t==='mc' ? `<div class="bars">${q.opts.map((o,k)=>`<div class="bar" style="grid-template-columns:44px 1fr"><span class="l o${L[k]}">${L[k]}</span><div class="track"><div class="lbl">${esc(o)}</div></div></div>`).join('')}</div>` : '';
+    const opts = choices(q);
     const b = !rev ? `${opts}<div class="empty"><div class="big">${N}</div>${N===1?'Antwort':'Antworten'} eingegangen · Verteilung erscheint mit der Auflösung</div>`
       : !N ? `<div class="empty">Keine Antworten in Runde „${esc(runde)}“.</div>`
       : q.t==='mc' ? bodyMC(q,rows,N,rev) : q.t==='sel' ? bodySel(q,rows,N,rev) : bodyOrder(q,rows,N,rev);

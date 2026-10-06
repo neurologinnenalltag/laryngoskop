@@ -68,14 +68,15 @@
 
   /* ---------- Darstellung ---------- */
   function shuffled(arr, seed){ const a = arr.map((v,i)=>i); let x = seed*9301+49297; for(let i=a.length-1;i>0;i--){ x=(x*9301+49297)%233280; const j=Math.floor(x/233280*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } if(a.every((v,i)=>v===i)) a.push(a.shift()); return a; }
-  const pool = q => [...new Set(q.rows.map(r=>r[1]))].sort((a,b)=>a.localeCompare(b,'de'));
+  const pool = q => [...new Set(q.rows.map(r=>r[1]).concat(q.extra||[]))].sort((a,b)=>a.localeCompare(b,'de'));
   function result(q, a){
     if(q.t==='mc') return a.pick===q.correct;
     if(q.t==='sel') return q.rows.every((r,k)=>(a.v||[])[k]===r[1]);
     const s = a.seq || []; return s.length===q.items.length && s.every((v,k)=>v===k); }
   const answered = (q, a) => !!a && (LIVE ? !!a.sent : !!a.done);
   function figs(q){ let h='';
-    if(q.fig) h += `<div class="fig${q.fig.k==='strip'?'':' small'}">${figSVG(q.fig,PAL)}</div>`;
+    if(q.fig) h += `<div class="fig${q.fig.k==='ekg12'?' wide':(q.fig.k==='strip'||q.fig.k==='lage')?'':' small'}"${q.fig.k==='ekg12'?' tabindex="0"':''}>${figSVG(q.fig,PAL)}</div>`;
+    if(q.fig && q.fig.k==='ekg12') h += `<p class="hint" style="text-align:left;margin:-8px 0 0">Zum Ansehen aller Ableitungen seitlich wischen.</p>`;
     if(q.figs) h += `<div class="figs">${q.figs.map(f=>`<div class="fig">${figSVG(f,PAL)}</div>`).join('')}</div>`;
     return h; }
   const why = (q, ok) => `<div class="why ${ok?'good':'bad'}" role="status"><b>${ok?'Richtig.':'Nicht ganz.'}</b>${esc(q.why)}</div>`;
